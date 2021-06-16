@@ -2,7 +2,7 @@ import IGameRoom from 'models/IGameRoom';
 
 const baseUrl = "http://localhost:3030/gameroom"
 
-export default class PlayerGateway {
+export default class GameRoomGateway {
     async join(playerId){
         return new Promise((resolve, reject) => {
             fetch(baseUrl + '/join', {

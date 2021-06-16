@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Game from 'components/Game/Game';
 import IPlayer from 'models/IPlayer';
 import IGameRoom from 'models/IGameRoom';
@@ -11,28 +11,27 @@ export default function GamePage(props: GamePageProps){
     const [player, setPlayer] = React.useState<IPlayer | null>();
     const [gameRoom, setGameRoom] = React.useState<IGameRoom | null>();
 
-    if(!props.playerId)
-        return <></>;
+    useEffect(() => {
+        if(!player){
+            playerGateway.get(props.playerId).then((playerData) => {
+                setPlayer(playerData)
+                if(!playerData.gameRoomId){
+                    gameRoomGateway.join(props.playerId).then((gameData) => {
+                        setGameRoom(gameData)
+                    });
+                }else{
+                    gameRoomGateway.get(playerData.gameRoomId).then((gameData) => {
+                        setGameRoom(gameData)
+                    });
+                }
+            }).catch((error) => {
+                props.onLogout();
+            });
+        }
+    }, []);
 
-    if(!player){
-        playerGateway.get(props.playerId).then((playerData) => {
-            setPlayer(playerData)
-            if(!playerData.gameRoomId){
-                gameRoomGateway.join(props.playerId).then((gameData) => {
-                    setGameRoom(gameData)
-                });
-            }else{
-                gameRoomGateway.get(playerData.gameRoomId).then((gameData) => {
-                    setGameRoom(gameData)
-                });
-            }
-        }).catch((error) => {
-            props.onLogout();
-        });
-    }
-    
-    if(!gameRoom)
-    return <></>;
+    if(!props.playerId || !gameRoom)
+        return <></>;
 
     return (<Game 
         gameRoom={gameRoom}

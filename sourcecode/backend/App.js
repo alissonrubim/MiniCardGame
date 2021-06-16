@@ -27,11 +27,14 @@ app.listen(3030, () => {
 const socketApp = express();
 const http = require('http');
 const socketServer = http.createServer(socketApp);
-const { Server } = require("socket.io");
-const io = new Server(socketServer);
+const io = require("socket.io")(socketServer, {
+    cors: corsOptions
+});
+const { socketController } = require("./controllers/Socket.controller");
+socketController.setIO(io);
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
+    socketController.onConnect(socket);
 });
 
 socketServer.listen("3031", () => {

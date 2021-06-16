@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GiSpades, GiDiamonds, GiHearts, GiClubs } from 'react-icons/gi';
+import socketIOClient from "socket.io-client"
 import Table from 'components/Table/Table';
 import IDeck from 'models/IDeck';
 import ICard from 'models/ICard';
 import ISuit from 'models/ISuit';
 import IGameRoom from 'models/IGameRoom';
 import { Button } from '@material-ui/core';
+import GameRoomGateway from 'gateways/GameRoom.gateway';
 
 function ConvertServerDeck(serverDeck: Array<ICard>): Array<ICard> {
   let decks = new Array<IDeck>();
@@ -77,34 +79,41 @@ function ConvertServerDeck(serverDeck: Array<ICard>): Array<ICard> {
 }
 
 export default function Game(props: GameProps){
+  const gameRoomGateway = new GameRoomGateway();
   const [gameRoom, setGameRoom] = React.useState(props.gameRoom);
 
-  let gameDeck = ConvertServerDeck(gameRoom.deck);
+  useEffect(() => {
+    const socket = socketIOClient("http://localhost:3031");
+    socket.on('connect', () => {
+      console.log('Successfully connected!');
+    });
+    socket.on("player_joined", data => {
+      gameRoomGateway.get(gameRoom.id).then((data) => {
+        setGameRoom(data);
+      })
+    });
+    socket.connect();
+  }, []);
 
-  if(gameRoom.players.length == 1){
-    return <>Waiting other player to enter the room</>
-  }
-
-  function drawCard(): ICard {
+  /*function drawCard(): ICard {
     let card = gameDeck.pop();
     if(card == null)
       throw new Error("You can't draw from a empty deck");
     return card;
-  }
-
-  function logout() {
-    props.onLogout();
-  }
+  }*/
 
   var myHandCards = Array<ICard>();
-  myHandCards.push(drawCard());
-  myHandCards.push(drawCard());
-  myHandCards.push(drawCard());
+  //myHandCards.push(drawCard());
+  //myHandCards.push(drawCard());
+  //myHandCards.push(drawCard());
+
+  if(gameRoom.players.length == 1)
+    return <>Waiting other player to enter the room</>
 
   return (<>
-      <Button onClick={() =>  logout()}>Leave</Button>
+      <Button onClick={() => props.onLogout()}>Leave</Button>
       <Table 
-        cardsAtDeck={gameDeck}  
+        cardsAtDeck={ConvertServerDeck(gameRoom.deck)}  
         cardsAtHand={myHandCards}  
       />
     </>)

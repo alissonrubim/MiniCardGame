@@ -1,6 +1,7 @@
 const { GameRoomModel } = require("../models/GameRoom.model");
 const { PlayerRepository } = require("../repositories/Player.repository");
 const { GameRoomRepository } = require("../repositories/GameRoom.repository");
+const { socketController } = require("../controllers/Socket.controller")
 const IdGenerator = require("../helpers/IdGenerator");
 
 const playerRepository = new PlayerRepository();
@@ -31,6 +32,7 @@ class GameRoomController {
                 player.gameRoomId = availableRoom.id;
                 playerRepository.update(player); //update player current gameroom
 
+                socketController.post("player_joined", { gameRoomId: player.gameRoomId, playerId: player.id })
                 response.status(200).send(availableRoom);
             }else{ //if not, create a new one
                 let newGameRoom = new GameRoomModel(IdGenerator.newId(), [player]);
@@ -39,6 +41,7 @@ class GameRoomController {
                 player.gameRoomId = newGameRoom.id;
                 playerRepository.update(player); //update player current gameroom
 
+                socketController.post("player_joined", { gameRoomId: player.gameRoomId, playerId: player.id })
                 response.status(201).send(newGameRoom);
             }   
         }
