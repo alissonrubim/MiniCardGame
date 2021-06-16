@@ -1,4 +1,4 @@
 export default interface IDeck {
-    identifier: string;
+    id: string;
     color: string;
 }

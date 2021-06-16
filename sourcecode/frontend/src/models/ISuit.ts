@@ -3,7 +3,7 @@ import IDeck from 'models/IDeck';
 
 export default interface ISuit {
     deck: IDeck;
-    identifier: string;
+    id: string;
     color: string;
     renderIcon: () => ReactElement
 }

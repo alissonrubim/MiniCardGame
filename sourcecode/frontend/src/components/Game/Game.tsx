@@ -1,18 +1,20 @@
+import React, { useState } from 'react';
 import { GiSpades, GiDiamonds, GiHearts, GiClubs } from 'react-icons/gi';
-
 import Table from 'components/Table/Table';
 import IDeck from 'models/IDeck';
 import ICard from 'models/ICard';
 import ISuit from 'models/ISuit';
+import IGameRoom from 'models/IGameRoom';
+import { Button } from '@material-ui/core';
 
-function GenerateDeck(): Array<ICard> {
+function ConvertServerDeck(serverDeck: Array<ICard>): Array<ICard> {
   let decks = new Array<IDeck>();
   decks.push({
-    identifier: 'red',
+    id: 'R',
     color: '#e55e5e'
   });
   decks.push({
-    identifier: 'blue',
+    id: 'B',
     color: '#659edb'
   })
 
@@ -20,57 +22,68 @@ function GenerateDeck(): Array<ICard> {
   decks.forEach((deck) => {
     suits.push({
       deck: deck,
-      identifier: 'hearts',
+      id: 'H',
       color: "red",
       renderIcon: () => <GiHearts />
     });
     suits.push({
       deck: deck,
-      identifier: 'spades',
+      id: 'S',
       color: "black",
       renderIcon: () => <GiSpades />
     });
     suits.push({
       deck: deck,
-      identifier: 'diamonds',
+      id: 'D',
       color: "red",
       renderIcon: () => <GiDiamonds />
     });
     suits.push({
       deck: deck,
-      identifier: 'clubs',
+      id: 'C',
       color: "black",
       renderIcon: () => <GiClubs />
     });
   });
   
-  let cardTemplates = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Q", "J", "K"];
+  function getSuitById(suitId: string): ISuit | null{
+    let suit = null;
+    suits.forEach((s) => {
+      if(s.id === suitId){
+        suit = s;
+        return;
+      }
+    })
+    return suit;
+  }
 
   let gameDeck = new Array<ICard>();
-  suits.forEach((suit) => {
-    cardTemplates.forEach((cardTemplate, cardTemplateIndex) => {
-      gameDeck.push({
-        value: cardTemplateIndex,
-        name: cardTemplate,
-        suit: suit
-      });
-    })    
-  })
 
-  shuffleArray(gameDeck);
+  serverDeck.forEach((serverCard) => {
+    //extract the infor from the card id
+    let deckId = serverCard.id.split(':')[0];
+    let suitId = serverCard.id.split(':')[1];
+    let cardName = serverCard.id.split(':')[2];
+
+    gameDeck.push({
+      id: serverCard.id,
+      value: serverCard.value,
+      name: cardName,
+      suit: getSuitById(suitId)!
+    });
+  })
 
   return gameDeck;
 }
 
-function shuffleArray(array: Array<ICard>) {
-  for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-  }
-}
+export default function Game(props: GameProps){
+  const [gameRoom, setGameRoom] = React.useState(props.gameRoom);
 
-export default function Game(){
-  let gameDeck = GenerateDeck();
+  let gameDeck = ConvertServerDeck(gameRoom.deck);
+
+  if(gameRoom.players.length == 1){
+    return <>Waiting other player to enter the room</>
+  }
 
   function drawCard(): ICard {
     let card = gameDeck.pop();
@@ -79,15 +92,25 @@ export default function Game(){
     return card;
   }
 
+  function logout() {
+    props.onLogout();
+  }
+
   var myHandCards = Array<ICard>();
   myHandCards.push(drawCard());
   myHandCards.push(drawCard());
   myHandCards.push(drawCard());
 
-  return (
-    <Table 
-      cardsAtDeck={gameDeck}  
-      cardsAtHand={myHandCards}  
-    />
-  )
+  return (<>
+      <Button onClick={() =>  logout()}>Leave</Button>
+      <Table 
+        cardsAtDeck={gameDeck}  
+        cardsAtHand={myHandCards}  
+      />
+    </>)
+}
+
+export interface GameProps {
+  gameRoom: IGameRoom,
+  onLogout: () => void
 }
