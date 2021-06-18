@@ -32,7 +32,7 @@ class GameRoomController {
                 player.gameRoomId = availableRoom.id;
                 playerRepository.update(player); //update player current gameroom
 
-                socketController.post("player_joined", { gameRoomId: player.gameRoomId, playerId: player.id })
+                socketController.post(player, "player_joined", { gameRoomId: player.gameRoomId, playerId: player.id })
                 response.status(200).send(availableRoom);
             }else{ //if not, create a new one
                 let newGameRoom = new GameRoomModel(IdGenerator.newId(), [player]);
@@ -41,7 +41,7 @@ class GameRoomController {
                 player.gameRoomId = newGameRoom.id;
                 playerRepository.update(player); //update player current gameroom
 
-                socketController.post("player_joined", { gameRoomId: player.gameRoomId, playerId: player.id })
+                socketController.post(player, "player_joined", { gameRoomId: player.gameRoomId, playerId: player.id })
                 response.status(201).send(newGameRoom);
             }   
         }

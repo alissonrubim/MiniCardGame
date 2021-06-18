@@ -15,9 +15,7 @@ function App() {
   const [playerId, setPlayerId] = React.useState<string | null>(currentPlayerId);
 
   function onLogin(userName: string){
-    playerGateway.create({
-        name: userName
-    }).then((player: IPlayer) => {
+    playerGateway.create(userName).then((player: IPlayer) => {
       setPlayerId(player.id);
       localStorage.setItem('playerId', player.id);
     })

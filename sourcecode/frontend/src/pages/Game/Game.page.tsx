@@ -13,10 +13,11 @@ export default function GamePage(props: GamePageProps){
 
     useEffect(() => {
         if(!player){
-            playerGateway.get(props.playerId).then((playerData) => {
+            //Get player and game data to decide if the game is ready to start
+            playerGateway.get(props.playerId!).then((playerData) => {
                 setPlayer(playerData)
                 if(!playerData.gameRoomId){
-                    gameRoomGateway.join(props.playerId).then((gameData) => {
+                    gameRoomGateway.join(props.playerId!).then((gameData) => {
                         setGameRoom(gameData)
                     });
                 }else{
@@ -34,6 +35,7 @@ export default function GamePage(props: GamePageProps){
         return <></>;
 
     return (<Game 
+        player={player!}
         gameRoom={gameRoom}
         onLogout={props.onLogout}
     />);

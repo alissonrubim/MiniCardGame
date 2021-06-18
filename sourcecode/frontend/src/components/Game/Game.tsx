@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { GiSpades, GiDiamonds, GiHearts, GiClubs } from 'react-icons/gi';
-import socketIOClient from "socket.io-client"
 import Table from 'components/Table/Table';
 import IDeck from 'models/IDeck';
 import ICard from 'models/ICard';
 import ISuit from 'models/ISuit';
 import IGameRoom from 'models/IGameRoom';
+import IPlayer from 'models/IPlayer';
 import { Button } from '@material-ui/core';
 import GameRoomGateway from 'gateways/GameRoom.gateway';
+import SocketGateway from 'gateways/Socket.gateway';
 
 function ConvertServerDeck(serverDeck: Array<ICard>): Array<ICard> {
   let decks = new Array<IDeck>();
@@ -80,27 +81,22 @@ function ConvertServerDeck(serverDeck: Array<ICard>): Array<ICard> {
 
 export default function Game(props: GameProps){
   const gameRoomGateway = new GameRoomGateway();
+  const socketGateWay = new SocketGateway();
   const [gameRoom, setGameRoom] = React.useState(props.gameRoom);
 
   useEffect(() => {
-    const socket = socketIOClient("http://localhost:3031");
-    socket.on('connect', () => {
-      console.log('Successfully connected!');
-    });
-    socket.on("player_joined", data => {
-      gameRoomGateway.get(gameRoom.id).then((data) => {
+    socketGateWay.onPlayerJoined = (data: any) => {
+      gameRoomGateway.get(gameRoom!.id).then((data) => {
         setGameRoom(data);
       })
-    });
-    socket.connect();
-  }, []);
+    }
+    socketGateWay.onGameStarted = (data: any) => {
+      gameRoomGateway.drawCard(gameRoom!.id, props.player.id).then((data) => {
 
-  /*function drawCard(): ICard {
-    let card = gameDeck.pop();
-    if(card == null)
-      throw new Error("You can't draw from a empty deck");
-    return card;
-  }*/
+      })
+    }
+    socketGateWay.connect(props.player);
+  }, []);
 
   var myHandCards = Array<ICard>();
   //myHandCards.push(drawCard());
@@ -120,6 +116,7 @@ export default function Game(props: GameProps){
 }
 
 export interface GameProps {
+  player: IPlayer,
   gameRoom: IGameRoom,
   onLogout: () => void
 }

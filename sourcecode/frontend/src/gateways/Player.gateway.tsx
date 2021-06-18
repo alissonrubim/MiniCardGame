@@ -1,14 +1,15 @@
 import IPlayer from 'models/IPlayer';
+import config from 'config.json';
 
-const baseUrl = "http://localhost:3030/player"
+const baseUrl = `${config.ApiBaseUrl}/player`
 
 export default class PlayerGateway {
-    async create(player){
-        return new Promise((resolve, reject) => {
+    async create(userName: string){
+        return new Promise<IPlayer>((resolve, reject) => {
             fetch(baseUrl, {
                 method: "POST",
                 body: JSON.stringify({
-                    name: player.name
+                    name: userName
                 }),
                 headers: {
                   'Content-type': 'application/json',
@@ -22,8 +23,8 @@ export default class PlayerGateway {
         })
     }
 
-    async get(playerId){
-        return new Promise((resolve, reject) => {
+    async get(playerId: string){
+        return new Promise<IPlayer>((resolve, reject) => {
             fetch(baseUrl + `/${playerId}`, {
                 method: "GET"
             }).then((resp) => {
