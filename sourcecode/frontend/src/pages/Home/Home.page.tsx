@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; 
-import { TextField, Button, Paper, Container, Box } from "@material-ui/core";
+import { TextField, Button, Paper, Container, Box, FormControl, Grid } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles({
@@ -8,6 +8,12 @@ const useStyles = makeStyles({
       textAlign: "center",
       marginTop: 100
     },
+    logo: {
+        width: 320
+    },
+    buttonLogin: {
+        height: 55
+    }
   });
 
 export default function HomePage(props: HomePageProps){
@@ -21,14 +27,17 @@ export default function HomePage(props: HomePageProps){
     return (
         <Container maxWidth="sm">
             <Paper variant="outlined" className={classes.root}>
-                <h2>Welcome to</h2>
-                <h1>Mini Card Game!</h1>
-                <form noValidate autoComplete="off">
-                    <TextField id="username" label="Username" variant="outlined" placeholder="Type here your user name" value={userName} onChange={(e) => {setUserName(e.target.value)}}/>
-                    <Box>
-                        <Button onClick={() => joinGame()} variant="contained" color="primary">Join a game</Button>
-                    </Box>
-                </form> 
+                <img src="/images/logo.png" className={classes.logo}/>
+                <FormControl>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6}>
+                            <TextField id="username" label="Username" variant="outlined" placeholder="Type here your user name" value={userName} onChange={(e) => {setUserName(e.target.value)}}/>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Button onClick={() => joinGame()} className={classes.buttonLogin}variant="contained" color="primary" size="large">Join a game</Button>
+                        </Grid>
+                    </Grid>
+                </FormControl> 
             </Paper>
         </Container>
     );

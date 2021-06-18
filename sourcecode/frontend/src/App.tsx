@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import './App.css';
-
+import Theme from 'theme';
 import IPlayer from 'models/IPlayer';
-import PlayerGameway  from 'gateways/Player.gateway'
+import PlayerGateway  from 'gateways/Player.gateway'
+import GameGateway from 'gateways/GameRoom.gateway'
 
 import HomePage from './pages/Home/Home.page';
 import GamePage from './pages/Game/Game.page';
@@ -11,7 +12,9 @@ import GamePage from './pages/Game/Game.page';
 function App() {
   let currentPlayerId = localStorage.getItem('playerId');
 
-  const playerGateway = new PlayerGameway();
+  const playerGateway = new PlayerGateway();
+  const gameGateway = new GameGateway();
+
   const [playerId, setPlayerId] = React.useState<string | null>(currentPlayerId);
 
   function onLogin(userName: string){
@@ -22,13 +25,15 @@ function App() {
   }
 
   function onLogout(){
-    setPlayerId(null);
-    localStorage.removeItem('playerId');
+    function removeFromMemory(){
+      setPlayerId(null);
+      localStorage.removeItem('playerId');
+    }
+    gameGateway.leave(playerId!).then(removeFromMemory).catch(removeFromMemory)
   }
 
-
   return (
-    <>
+    <Theme>
       {!playerId && 
        <HomePage
         onLogin={onLogin}/>
@@ -39,7 +44,7 @@ function App() {
           onLogout={onLogout}
         />
       }
-   </> 
+   </Theme> 
   );
 }
 

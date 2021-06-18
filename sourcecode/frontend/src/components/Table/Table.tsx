@@ -2,9 +2,7 @@ import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Deck from 'components/Deck/Deck';
-import MyHand from 'components/MyHand/MyHand';
 import ICard from 'models/ICard'
-import { isClassExpression } from 'typescript';
 
 const useStyles = makeStyles({
   root: {
@@ -34,16 +32,10 @@ export default function Table(props: TableProps){
       <Deck 
         cards={props.cardsAtDeck}
       />
-      <Box className={classes.my_hand_interface}>
-        <MyHand 
-          cards={props.cardsAtHand}
-        />
-      </Box>
     </Box>
   )
 }
 
 export interface TableProps {
-  cardsAtDeck: Array<ICard>,
-  cardsAtHand: Array<ICard>
+  cardsAtDeck: Array<ICard>
 }

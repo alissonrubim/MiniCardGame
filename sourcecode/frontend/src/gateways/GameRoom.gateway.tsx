@@ -23,6 +23,25 @@ export default class GameRoomGateway {
         })
     }
 
+    async leave(playerId: string){
+        return new Promise((resolve, reject) => {
+            fetch(baseUrl + '/leave', {
+                method: "POST",
+                body: JSON.stringify({
+                    playerId: playerId
+                }),
+                headers: {
+                  'Content-type': 'application/json',
+                }
+            }).then((resp) => {
+                if(resp.ok)
+                    resolve(null);
+                else
+                    reject();
+            })
+        })
+    }
+
     async get(gameRoomId: string){
         return new Promise<IGameRoom>((resolve, reject) => {
             fetch(baseUrl + `/${gameRoomId}`, {

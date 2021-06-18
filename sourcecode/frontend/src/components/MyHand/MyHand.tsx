@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import Card from 'components/Card/Card';
 import ICard from 'models/ICard';
+import IPlayer from 'models/IPlayer';
 import StyleSizes from 'StyleSizes';
 import classNames from 'classnames';
 
@@ -34,7 +35,7 @@ export default function MyHand(props: MyHandProps){
 
   return (
     <Box className={classes.root}>
-      {props.cards.map((card, cardIndex) => 
+      {props.player.hand.map((card, cardIndex) => 
         <div className={classes.card_container} style={{
           marginTop: (cardIndex > 0 ? (StyleSizes.Card.root.height*scale*-1): -500),
           marginLeft: 60*cardIndex
@@ -52,5 +53,5 @@ export default function MyHand(props: MyHandProps){
 }
 
 export interface MyHandProps {
-  cards: Array<ICard>,
+  player: IPlayer,
 }

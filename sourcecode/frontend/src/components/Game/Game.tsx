@@ -1,101 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import { GiSpades, GiDiamonds, GiHearts, GiClubs } from 'react-icons/gi';
 import Table from 'components/Table/Table';
-import IDeck from 'models/IDeck';
 import ICard from 'models/ICard';
-import ISuit from 'models/ISuit';
 import IGameRoom from 'models/IGameRoom';
 import IPlayer from 'models/IPlayer';
-import { Button } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import GameRoomGateway from 'gateways/GameRoom.gateway';
 import SocketGateway from 'gateways/Socket.gateway';
+import MyHand from 'components/MyHand/MyHand';
+import { ConvertServerDeck } from 'helpers/DeckHelpers';
+import HUD from 'components/HUD/HUD';
 
-function ConvertServerDeck(serverDeck: Array<ICard>): Array<ICard> {
-  let decks = new Array<IDeck>();
-  decks.push({
-    id: 'R',
-    color: '#e55e5e'
-  });
-  decks.push({
-    id: 'B',
-    color: '#659edb'
-  })
 
-  let suits = new Array<ISuit>();
-  decks.forEach((deck) => {
-    suits.push({
-      deck: deck,
-      id: 'H',
-      color: "red",
-      renderIcon: () => <GiHearts />
-    });
-    suits.push({
-      deck: deck,
-      id: 'S',
-      color: "black",
-      renderIcon: () => <GiSpades />
-    });
-    suits.push({
-      deck: deck,
-      id: 'D',
-      color: "red",
-      renderIcon: () => <GiDiamonds />
-    });
-    suits.push({
-      deck: deck,
-      id: 'C',
-      color: "black",
-      renderIcon: () => <GiClubs />
-    });
-  });
-  
-  function getSuitById(suitId: string): ISuit | null{
-    let suit = null;
-    suits.forEach((s) => {
-      if(s.id === suitId){
-        suit = s;
-        return;
-      }
-    })
-    return suit;
+const useStyles = makeStyles({
+  hud: {
+    position: 'absolute',
+    bottom: 25,
+    left: 0
   }
-
-  let gameDeck = new Array<ICard>();
-
-  serverDeck.forEach((serverCard) => {
-    //extract the infor from the card id
-    let deckId = serverCard.id.split(':')[0];
-    let suitId = serverCard.id.split(':')[1];
-    let cardName = serverCard.id.split(':')[2];
-
-    gameDeck.push({
-      id: serverCard.id,
-      value: serverCard.value,
-      name: cardName,
-      suit: getSuitById(suitId)!
-    });
-  })
-
-  return gameDeck;
-}
+});
 
 export default function Game(props: GameProps){
+  const classes = useStyles();
   const gameRoomGateway = new GameRoomGateway();
   const socketGateWay = new SocketGateway();
+  const player = props.player;
   const [gameRoom, setGameRoom] = React.useState(props.gameRoom);
+  const [gameIsReady, setGameIsReady] = React.useState(props.gameRoom.players.length == 2);
+
+  function updateGame(){
+    gameRoomGateway.get(gameRoom!.id).then((data) => {
+      setGameRoom(data);
+      setGameIsReady(data.players.length == 2)
+    })    
+  }
 
   useEffect(() => {
     socketGateWay.onPlayerJoined = (data: any) => {
-      gameRoomGateway.get(gameRoom!.id).then((data) => {
-        setGameRoom(data);
-      })
+      updateGame();
+    }
+    socketGateWay.onPlayerLeft = (data: any) => {
+      updateGame();
     }
     socketGateWay.onGameStarted = (data: any) => {
-      gameRoomGateway.drawCard(gameRoom!.id, props.player.id).then((data) => {
+      gameRoomGateway.drawCard(gameRoom!.id, player.id).then((data) => {
 
       })
     }
-    socketGateWay.connect(props.player);
+    socketGateWay.onDisconnect = () => {
+      props.onLogout();
+    }
+    socketGateWay.connect(player);
   }, []);
 
   var myHandCards = Array<ICard>();
@@ -103,16 +57,11 @@ export default function Game(props: GameProps){
   //myHandCards.push(drawCard());
   //myHandCards.push(drawCard());
 
-  if(gameRoom.players.length == 1)
-    return <>Waiting other player to enter the room</>
-
   return (<>
-      <Button onClick={() => props.onLogout()}>Leave</Button>
-      <Table 
-        cardsAtDeck={ConvertServerDeck(gameRoom.deck)}  
-        cardsAtHand={myHandCards}  
-      />
-    </>)
+    <Table cardsAtDeck={ConvertServerDeck(gameRoom.deck)} />
+    <HUD player={player} gameRoom={gameRoom} onLogout={props.onLogout} gameIsReady={gameIsReady}/>
+    <MyHand player={player} />
+  </>)
 }
 
 export interface GameProps {

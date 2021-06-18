@@ -17,9 +17,13 @@ class PlayerController {
     }
 
     post(request, response){
-        let player = new PlayerModel(IdGenerator.newId(), request.body.name);
-        playerRepository.insert(player);
-        response.status(201).send(player);
+        if(!request.body.name)
+            response.status(400).send("Username must have a value.");
+        else{
+            let player = new PlayerModel(IdGenerator.newId(), request.body.name);
+            playerRepository.insert(player);
+            response.status(201).send(player);
+        }
     }
 
     getAll(request, response) {

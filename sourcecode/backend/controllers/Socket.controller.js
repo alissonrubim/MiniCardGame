@@ -11,16 +11,20 @@ class SocketController {
         let player = playerRepository.getById(playerId);
 
         if(!player)
-            throw new Error("Player not found.");
-        
-        console.info(player.gameRoomId)
-        socket.join(player.gameRoomId); //Create or join to a room with the same id as gameRoomId
+            socket.disconnect();
+        else
+            socket.join(player.gameRoomId); //Create or join to a room with the same id as gameRoomId
     }
 
-    post(player, action, data){
-        console.info("Emmit to ", player.gameRoomId)
-        this.io.to(player.gameRoomId).emit(action, data); //Emit a message only to the room that the player is on
+    post(gameRoomId, action, data){
+        console.info("Post", action, "to room", gameRoomId)
+        this.io.to(gameRoomId).emit(action, data); //Emit a message only to the room that the player is on
     }
 }
 
 exports.socketController = new SocketController();
+
+exports.Actions = {
+    PlayerLeft: "player_left",
+    PlayerJoined: "player_joined"
+}
