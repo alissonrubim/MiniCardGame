@@ -9,7 +9,7 @@ const useStyles = makeStyles({
   root: {
     position: 'relative',
     left: 650,
-    top: 120
+    top: 50
   },
 });
 
@@ -39,6 +39,9 @@ export default function DeacDeck(props: DeacDeckProps){
           transform: `rotateZ(${getRotationAngle(card)}deg)` 
         }}>
           <Card 
+            style={{
+              boxShadow: "#0000004a 0px 0px 12px"
+            }}
             card={card}
             scale={scale}
             isFlipped={false}

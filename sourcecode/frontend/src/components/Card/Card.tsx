@@ -56,10 +56,10 @@ export default function Card(props: CardProps){
   let frontCardClasses = classNames(classes.card_face, classes.card_face_front);
   let backCardClasses = classNames(classes.card_face, classes.card_face_back);
 
-  let rootStyles:any = { width: StyleSizes.Card.root.width*scale, height: StyleSizes.Card.root.height*scale };
+  let rootStyles:any = { ...props.style, width: StyleSizes.Card.root.width*scale, height: StyleSizes.Card.root.height*scale };
 
   if(props.shadowLeft){
-    rootStyles.boxShadow = "-2px 3px 7px -3px #04040459";
+    rootStyles.boxShadow = "rgb(0 0 0 / 45%) 0px 0px 5px";
   }
 
   function handleOnClick(){
@@ -94,5 +94,6 @@ export interface CardProps {
   scale?: number,
   isFlipped?: boolean,
   shadowLeft?: boolean,
+  style?: any,
   onClick?: (card: ICard) => void,
 }

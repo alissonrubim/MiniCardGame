@@ -34,6 +34,9 @@ export default function Deck(props: DeckProps){
             card={card}
             scale={scale}
             isFlipped={true}
+            style={{
+              boxShadow: "rgb(0 0 0 / 5%) 0px 10px 5px" 
+            }}
           />
         </div>
       )}
