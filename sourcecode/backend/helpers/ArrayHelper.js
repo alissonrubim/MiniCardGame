@@ -1,8 +1,16 @@
-exports.RemoveItemByField = (array, field, value) => {
-    var index = 0;
+exports.GetIndex = (array, field, value) => {
+    var index = -1;
     array.forEach((p, pi) => {
         if(p[field] == value)
             index = pi;
     })
-    array.splice(index, 1);
+    return index
+}
+
+exports.Remove = (array, field, value) => {
+    array.splice(exports.GetIndex(array, field, value), 1);
+}
+
+exports.Contains = (array, field, value) => {
+    return exports.GetIndex(array, field, value) > -1;
 }

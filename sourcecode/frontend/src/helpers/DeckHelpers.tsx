@@ -3,8 +3,8 @@ import ICard from 'models/ICard';
 import ISuit from 'models/ISuit';
 import { GiSpades, GiDiamonds, GiHearts, GiClubs } from 'react-icons/gi';
 
-export function ConvertServerDeck(serverDeck: Array<ICard>): Array<ICard> {
-  let decks = new Array<IDeck>();
+function getDecks(){
+  let decks =  new Array<IDeck>();
   decks.push({
     id: 'R',
     color: '#e55e5e'
@@ -13,9 +13,12 @@ export function ConvertServerDeck(serverDeck: Array<ICard>): Array<ICard> {
     id: 'B',
     color: '#659edb'
   })
+  return decks;
+}
 
+function getSuits(){
   let suits = new Array<ISuit>();
-  decks.forEach((deck) => {
+  getDecks().forEach((deck) => {
     suits.push({
       deck: deck,
       id: 'H',
@@ -41,7 +44,10 @@ export function ConvertServerDeck(serverDeck: Array<ICard>): Array<ICard> {
       renderIcon: () => <GiClubs />
     });
   });
-  
+  return suits;
+}
+
+function ConvertServerCard_Aux(suits: Array<ISuit>, serverCard: ICard): ICard {
   function getSuitById(suitId: string): ISuit | null{
     let suit = null;
     suits.forEach((s) => {
@@ -53,6 +59,21 @@ export function ConvertServerDeck(serverDeck: Array<ICard>): Array<ICard> {
     return suit;
   }
 
+  //extract the infor from the card id
+  let deckId = serverCard.id.split(':')[0];
+  let suitId = serverCard.id.split(':')[1];
+  let cardName = serverCard.id.split(':')[2];
+
+  return {
+    id: serverCard.id,
+    value: serverCard.value,
+    name: cardName,
+    suit: getSuitById(suitId)!
+  };
+}
+
+export function ConvertServerDeck(serverDeck: Array<any>): Array<ICard> {
+  let suits = getSuits();
   let gameDeck = new Array<ICard>();
 
   serverDeck.forEach((serverCard) => {
@@ -61,13 +82,28 @@ export function ConvertServerDeck(serverDeck: Array<ICard>): Array<ICard> {
     let suitId = serverCard.id.split(':')[1];
     let cardName = serverCard.id.split(':')[2];
 
-    gameDeck.push({
-      id: serverCard.id,
-      value: serverCard.value,
-      name: cardName,
-      suit: getSuitById(suitId)!
-    });
+    gameDeck.push(ConvertServerCard_Aux(suits, serverCard));
   })
 
+  return gameDeck;
+}
+
+export function ConvertServerCard(serverCard: any): ICard {
+  let suits = getSuits();
+  return ConvertServerCard_Aux(suits, serverCard);
+}
+
+export function GenerateFakeDeck(size: number): Array<ICard> {
+  let suits = getSuits();
+  let gameDeck = new Array<ICard>();
+
+  for(var i=0; i<size; i++){
+    gameDeck.push({
+      id: "-1:-1:-1",
+      value: -1,
+      name: "Void",
+      suit: suits[0]
+    });
+  }
   return gameDeck;
 }

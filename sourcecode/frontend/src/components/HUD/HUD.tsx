@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Box, Card } from '@material-ui/core';
+import { Button, Box, Card, Snackbar, Slide } from '@material-ui/core';
 import { Dialog, DialogTitle } from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -32,6 +32,10 @@ export default function HUD(props: HUDProps){
     return (<Button onClick={() => props.onLogout()} variant="contained" color="secondary">Leave game</Button>);
   }
 
+  function snackBarTransitionUp(props: any) {
+    return <Slide {...props} direction="up" />;
+  }
+
   return (
     <Box>
         <Dialog open={!props.gameIsReady}>
@@ -43,9 +47,15 @@ export default function HUD(props: HUDProps){
                 </div>
             </DialogTitle>
         </Dialog>
+        <Snackbar
+          open={props.gameIsReady && !props.isMyTurn}
+          TransitionComponent={snackBarTransitionUp}
+          message="Waiting other player to play"
+          key="up"
+        />
         <Card className={classes.bottomRight}>
             <div>{props.player.name}</div>
-            <div>Victories: 0</div>
+            <div>Rounds: 0</div>
             {logoutButton()}
         </Card>
         <Card className={classes.bottomLeft}>
@@ -61,5 +71,6 @@ export interface HUDProps {
     player: IPlayer,
     gameRoom: IGameRoom,
     gameIsReady: boolean,
+    isMyTurn: boolean,
     onLogout: () => void,
 }

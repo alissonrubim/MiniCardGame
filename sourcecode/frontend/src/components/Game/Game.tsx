@@ -5,46 +5,50 @@ import IGameRoom from 'models/IGameRoom';
 import IPlayer from 'models/IPlayer';
 import { makeStyles } from '@material-ui/core/styles';
 import GameRoomGateway from 'gateways/GameRoom.gateway';
+import PlayerGateway from 'gateways/Player.gateway';
 import SocketGateway from 'gateways/Socket.gateway';
 import MyHand from 'components/MyHand/MyHand';
-import { ConvertServerDeck } from 'helpers/DeckHelpers';
 import HUD from 'components/HUD/HUD';
 
-
-const useStyles = makeStyles({
-  hud: {
-    position: 'absolute',
-    bottom: 25,
-    left: 0
-  }
-});
+import {GetCurrentMatch, GetCurrentRound} from 'helpers/GameRoomHelper';
 
 export default function Game(props: GameProps){
-  const classes = useStyles();
   const gameRoomGateway = new GameRoomGateway();
+  const playerGateway = new PlayerGateway();
+
   const socketGateWay = new SocketGateway();
-  const player = props.player;
+  const [player, setPlayer] = React.useState(props.player);
   const [gameRoom, setGameRoom] = React.useState(props.gameRoom);
   const [gameIsReady, setGameIsReady] = React.useState(props.gameRoom.players.length == 2);
+  const [isMyTurn, setIsMyTurn] = React.useState(props.gameRoom.currentPlayerIdTurn == player.id);
 
   function updateGame(){
-    gameRoomGateway.get(gameRoom!.id).then((data) => {
-      setGameRoom(data);
-      setGameIsReady(data.players.length == 2)
+    gameRoomGateway.get(gameRoom!.id).then((gameRoomData: IGameRoom) => {
+      playerGateway.get(player.id).then((playerData: IPlayer) => {
+        setPlayer(playerData);
+
+        setGameRoom(gameRoomData);
+        setGameIsReady(GetCurrentMatch(gameRoomData) != null);
+        setIsMyTurn(gameRoomData.currentPlayerIdTurn == player.id)
+      })
     })    
   }
 
   useEffect(() => {
     socketGateWay.onPlayerJoined = (data: any) => {
+      console.info("socketGateWay->onPlayerJoined")
       updateGame();
     }
     socketGateWay.onPlayerLeft = (data: any) => {
+      console.info("socketGateWay->onPlayerLeft")
       updateGame();
     }
-    socketGateWay.onGameStarted = (data: any) => {
-      gameRoomGateway.drawCard(gameRoom!.id, player.id).then((data) => {
-
-      })
+    /*socketGateWay.onGameStarted = (data: any) => {
+      
+    }*/
+    socketGateWay.onPlayerPlayCard = (data: any) => {
+      console.info("socketGateWay->onPlayerPlayCard")
+      updateGame();
     }
     socketGateWay.onDisconnect = () => {
       props.onLogout();
@@ -52,15 +56,28 @@ export default function Game(props: GameProps){
     socketGateWay.connect(player);
   }, []);
 
-  var myHandCards = Array<ICard>();
-  //myHandCards.push(drawCard());
-  //myHandCards.push(drawCard());
-  //myHandCards.push(drawCard());
+  function handleCardClick(card: ICard){
+    if(isMyTurn){
+      gameRoomGateway.playCard(gameRoom.id, player.id, card.id);
+    }
+  }
+
 
   return (<>
-    <Table cardsAtDeck={ConvertServerDeck(gameRoom.deck)} />
-    <HUD player={player} gameRoom={gameRoom} onLogout={props.onLogout} gameIsReady={gameIsReady}/>
-    <MyHand player={player} />
+    <Table 
+      gameRoom={gameRoom} 
+    />
+    <HUD 
+      player={player} 
+      gameRoom={gameRoom} 
+      onLogout={props.onLogout} 
+      gameIsReady={gameIsReady}
+      isMyTurn={isMyTurn}
+    />
+    <MyHand 
+      player={player} 
+      isMyTurn={isMyTurn}
+      onCardClick={handleCardClick} />
   </>)
 }
 

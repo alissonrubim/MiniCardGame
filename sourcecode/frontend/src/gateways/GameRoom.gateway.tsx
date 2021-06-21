@@ -1,5 +1,7 @@
 import IGameRoom from 'models/IGameRoom';
+import ICard from 'models/ICard';
 import config from 'config.json';
+import { ConvertServerDeck, ConvertServerCard } from 'helpers/DeckHelpers';
 
 const baseUrl = `${config.ApiBaseUrl}/gameroom`
 
@@ -16,7 +18,11 @@ export default class GameRoomGateway {
                 }
             }).then((resp) => {
                 if(resp.ok)
-                    resp.json().then((data) => resolve(data));
+                    resp.json().then((data) => {
+                        let gameRoom = data;
+                        gameRoom.deck = ConvertServerDeck(gameRoom.deck);
+                        resolve(gameRoom)
+                    });
                 else
                     reject();
             })
@@ -48,7 +54,11 @@ export default class GameRoomGateway {
                 method: "GET"
             }).then((resp) => {
                 if(resp.ok)
-                    resp.json().then((data) => resolve(data));
+                    resp.json().then((data) => {
+                        let gameRoom = data;
+                        gameRoom.deck = ConvertServerDeck(gameRoom.deck);
+                        resolve(gameRoom)
+                    });
                 else
                     reject();
             })
@@ -56,7 +66,7 @@ export default class GameRoomGateway {
     }
 
     async drawCard(gameRoomId: string, playerId: string){
-        return new Promise<IGameRoom>((resolve, reject) => {
+        return new Promise<ICard>((resolve, reject) => {
             fetch(baseUrl + `/${gameRoomId}/drawcard`, {
                 method: "POST",
                 body: JSON.stringify({
@@ -67,7 +77,31 @@ export default class GameRoomGateway {
                 }
             }).then((resp) => {
                 if(resp.ok)
-                    resp.json().then((data) => resolve(data));
+                    resp.json().then((data) => {
+                        resolve(ConvertServerCard(data))
+                    });
+                else
+                    reject();
+            })
+        })
+    }
+
+    async playCard(gameRoomId: string, playerId: string, cardId: string){
+        return new Promise((resolve, reject) => {
+            fetch(baseUrl + `/${gameRoomId}/playcard`, {
+                method: "POST",
+                body: JSON.stringify({
+                    playerId: playerId,
+                    cardId: cardId
+                }),
+                headers: {
+                  'Content-type': 'application/json',
+                }
+            }).then((resp) => {
+                if(resp.ok)
+                    resp.json().then((data) => {
+                        resolve(null)
+                    });
                 else
                     reject();
             })

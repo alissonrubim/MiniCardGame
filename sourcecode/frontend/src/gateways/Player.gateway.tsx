@@ -1,5 +1,6 @@
 import IPlayer from 'models/IPlayer';
 import config from 'config.json';
+import { ConvertServerDeck } from 'helpers/DeckHelpers';
 
 const baseUrl = `${config.ApiBaseUrl}/player`
 
@@ -16,7 +17,11 @@ export default class PlayerGateway {
                 }
             }).then((resp) => {
                 if(resp.ok)
-                    resp.json().then((data) => resolve(data));
+                    resp.json().then((data) => {
+                        let player = data;
+                        player.hand = ConvertServerDeck(player.hand);
+                        resolve(player)
+                    });
                 else
                     reject();
             })
@@ -29,7 +34,11 @@ export default class PlayerGateway {
                 method: "GET"
             }).then((resp) => {
                 if(resp.ok)
-                    resp.json().then((data) => resolve(data));
+                    resp.json().then((data) => {
+                        let player = data;
+                        player.hand = ConvertServerDeck(player.hand);
+                        resolve(player)
+                    });
                 else
                     reject();
             })

@@ -11,8 +11,10 @@ type SocketGatewayEventHandler = () => void;
 export default class SocketGateway {
     onPlayerJoined: SocketGatewayEventArgsHandler | null = null;
     onPlayerLeft:  SocketGatewayEventArgsHandler | null = null;
+    onPlayerPlayCard: SocketGatewayEventArgsHandler | null = null;
     onGameStarted: SocketGatewayEventArgsHandler | null = null;
     onDisconnect: SocketGatewayEventHandler | null = null;
+    
 
     async connect(player: IPlayer){
         return new Promise((resolve, reject) => {
@@ -29,18 +31,19 @@ export default class SocketGateway {
                     this.onPlayerJoined(data)
             });
             socket.on("player_left", (data: any) => {
-                console.info("dasdadasdasd")
                 if(this.onPlayerLeft)
                     this.onPlayerLeft(data)
+            });
+            socket.on("player_play_card", (data: any) => {
+                if(this.onPlayerPlayCard)
+                    this.onPlayerPlayCard(data)
             });
             socket.on("game_started", (data: any) => {
                 if(this.onGameStarted)
                     this.onGameStarted(data)
             });
         })
-    }
-
-    
+    }    
 }
 
     

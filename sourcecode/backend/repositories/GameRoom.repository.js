@@ -7,8 +7,8 @@ class GameRoomRepository {
 
     update(room){
         let roomDto = this.getById(room.id);
+        roomDto.currentPlayerIdTurn = room.currentPlayerIdTurn;
         roomDto.players = room.players;
-        roomDto.deck = room.deck;
     }
 
     delete(roomId){
@@ -47,11 +47,9 @@ class GameRoomRepository {
     }
 
     drawCard(id){
-        console.info(id)
         let gameRoom = this.getById(id);
-        console.info(gameRoom)
-        var card = gameRoom.deck.pop;
-        this.update(room);
+        var card = gameRoom.deck.pop();
+        this.update(gameRoom);
         return card;
     }
 }

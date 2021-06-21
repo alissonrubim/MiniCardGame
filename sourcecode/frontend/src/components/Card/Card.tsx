@@ -14,7 +14,6 @@ const useStyles = makeStyles({
     border: 0,
     borderRadius: 0,
     perspective: 1000,
-    /*boxShadow: '0px 1px 0px #0000002b',*/
   },
   container: {
     position: 'relative',
@@ -57,13 +56,14 @@ export default function Card(props: CardProps){
   let frontCardClasses = classNames(classes.card_face, classes.card_face_front);
   let backCardClasses = classNames(classes.card_face, classes.card_face_back);
 
-  function onMouseOver(){
-    if(props.onMouseHover)
-      props.onMouseHover(props.card);
+  let rootStyles:any = { width: StyleSizes.Card.root.width*scale, height: StyleSizes.Card.root.height*scale };
+
+  if(props.shadowLeft){
+    rootStyles.boxShadow = "-2px 3px 7px -3px #04040459";
   }
 
   return (
-    <Box onMouseOver={onMouseOver} className={classes.root} style={{ width: StyleSizes.Card.root.width*scale, height: StyleSizes.Card.root.height*scale }}>
+    <Box className={classes.root} style={rootStyles}>
       <Box className={containerClasses}>
         <Box className={frontCardClasses}>
           <CardFront 
@@ -88,5 +88,5 @@ export interface CardProps {
   card: ICard,
   scale?: number,
   isFlipped?: boolean,
-  onMouseHover?: (card: ICard) => void,
+  shadowLeft?: boolean,
 }

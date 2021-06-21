@@ -8,7 +8,6 @@ class PlayerRepository {
     update(player){
         let playerDto = this.getById(player.id);
         playerDto.name = player.name;
-        playerDto.hand = player.hand;
         playerDto.gameRoomId = player.gameRoomId;
     }
 

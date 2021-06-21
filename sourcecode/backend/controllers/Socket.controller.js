@@ -1,5 +1,14 @@
+const { GameRoomRepository } = require("../repositories/GameRoom.repository");
 const { PlayerRepository } = require("../repositories/Player.repository");
 const playerRepository = new PlayerRepository();
+const gameRoomRepository = new GameRoomRepository();
+
+const Actions = {
+    PlayerLeft: "player_left",
+    PlayerJoined: "player_joined",
+    PlayerPlayCard: "player_play_card",
+    GameStarted: "game_started"
+}
 
 class SocketController {
     setIO(io){
@@ -9,11 +18,12 @@ class SocketController {
     onConnect(socket){
         let playerId = socket.handshake.query.playerId;
         let player = playerRepository.getById(playerId);
-
-        if(!player)
+        
+        if(!player || !player.gameRoomId)
             socket.disconnect();
-        else
+        else{
             socket.join(player.gameRoomId); //Create or join to a room with the same id as gameRoomId
+        }
     }
 
     post(gameRoomId, action, data){
@@ -24,7 +34,4 @@ class SocketController {
 
 exports.socketController = new SocketController();
 
-exports.Actions = {
-    PlayerLeft: "player_left",
-    PlayerJoined: "player_joined"
-}
+exports.Actions = Actions

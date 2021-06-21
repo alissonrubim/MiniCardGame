@@ -8,12 +8,19 @@ import IPlayer from 'models/IPlayer';
 import StyleSizes from 'StyleSizes';
 import classNames from 'classnames';
 
+
+
 const useStyles = makeStyles({
   root: {
-    
+    position: "absolute",
+    bottom: 0
   },
   card_container: {
-    transition: 'margin-top 0.8s',
+    position: 'absolute',
+    transition: 'bottom 0.8s',
+    '&:hover': {
+      bottom: 50
+    }
   },
   card_highlight: {
     marginTop: -500,
@@ -22,29 +29,37 @@ const useStyles = makeStyles({
 
 export default function MyHand(props: MyHandProps){
   const classes = useStyles();
-  const scale = 1;
-  const [hoverCard, setHoverCard] = React.useState<ICard>();
+  const scale = 1.2;
+  const [width, setWidth] = React.useState(window.innerWidth);
 
-  function onMouseHover(card: ICard){
-    setHoverCard(card);
-  }
+  React.useEffect(() => {
+    window.addEventListener('resize', () => {
+      setWidth(window.innerWidth)
+    });
+  }, []);
   
+  let root_styles = {
+    left: width/2 - (props.player.hand.length * (StyleSizes.Card.root.width*scale)/2)/2
+  }
 
-  let card_container_classes = classNames(classes.card_container);
-  let card_container_hightlight = classNames(classes.card_container, classes.card_highlight);
+  function handleOnClick(card: ICard){
+    props.onCardClick(card);
+  }
 
   return (
-    <Box className={classes.root}>
+    <Box className={classes.root} style={root_styles} >
       {props.player.hand.map((card, cardIndex) => 
         <div className={classes.card_container} style={{
-          marginTop: (cardIndex > 0 ? (StyleSizes.Card.root.height*scale*-1): -500),
-          marginLeft: 60*cardIndex
-        }}>
+          bottom: 0,
+          left: (StyleSizes.Card.root.width*scale/2)*cardIndex,
+          cursor: props.isMyTurn ? "pointer" : "default"
+        }}
+          onClick={() => handleOnClick(card)}>
           <Card 
             card={card}
             scale={scale}
             isFlipped={false}
-            onMouseHover={onMouseHover}
+            shadowLeft={true}
           />
         </div>
       )}
@@ -54,4 +69,6 @@ export default function MyHand(props: MyHandProps){
 
 export interface MyHandProps {
   player: IPlayer,
+  isMyTurn: boolean,
+  onCardClick: (card: ICard) => void
 }

@@ -1,12 +1,5 @@
-const { GameRoomModel } = require("../models/GameRoom.model");
-const { PlayerRepository } = require("../repositories/Player.repository");
-const { GameRoomRepository } = require("../repositories/GameRoom.repository");
-const { socketController, Actions } = require("../controllers/Socket.controller")
-const IdGenerator = require("../helpers/IdGenerator");
-const ArrayHelper = require("../helpers/ArrayHelper");
-
-const playerRepository = new PlayerRepository();
-const gameRoomRepository = new GameRoomRepository();
+const {GameRoomService} = require("../services/Game.Room.service")
+const gameRoomService = new GameRoomService();
 
 class GameRoomController {
     constructor(app){
@@ -21,66 +14,32 @@ class GameRoomController {
 
         app.route('/gameroom/:id/drawcard')
             .post([this.postDrawCard]);
+
+        app.route('/gameroom/:id/playcard')
+            .post([this.postPlayCard]);
     }
 
     postJoin(request, response){
-        let player = playerRepository.getById(request.body.playerId);
-        if(!player)
-            response.status(400).send("Player not found");
-
-        if(player.gameRoomId){ //If is joinned to a game, return this same game
-            response.status(200).send(gameRoomRepository.getById(player.gameRoomId));
-        }else{
-            let availableRoom = gameRoomRepository.getAvailable();
-            if(availableRoom){ //if has an avaibale room, join the player
-                availableRoom.players.push(player);
-                gameRoomRepository.update(availableRoom);
-
-                player.gameRoomId = availableRoom.id;
-                playerRepository.update(player); //update player current gameroom
-
-                socketController.post(player.gameRoomId, Actions.PlayerJoined, { gameRoomId: player.gameRoomId, playerId: player.id })
-                response.status(200).send(availableRoom);
-            }else{ //if not, create a new one
-                let newGameRoom = new GameRoomModel(IdGenerator.newId(), [player]);
-                gameRoomRepository.insert(newGameRoom);
-
-                player.gameRoomId = newGameRoom.id;
-                playerRepository.update(player); //update player current gameroom
-
-                socketController.post(player.gameRoomId, Actions.PlayerJoined, { gameRoomId: player.gameRoomId, playerId: player.id })
-                response.status(201).send(newGameRoom);
-            }   
+        try {
+            response.status(200).send(gameRoomService.join(request.body.playerId));
+        } catch (error) {
+            console.info(error)
+            response.status(400).send(error)
         }
     }
 
     postLeave(request, response){
-        let player = playerRepository.getById(request.body.playerId);
-        if(!player)
-            response.status(400).send("Player not found");
-        else if(!player.gameRoomId)
-            response.status(400).send("Player is not in a room");
-        else{
-            let gameRoom = gameRoomRepository.getById(player.gameRoomId);
-
-            //Search and remove the player from the room list
-            ArrayHelper.RemoveItemByField(gameRoom.players, "id", player.id);
-
-            if(gameRoom.players.length > 0)
-                gameRoomRepository.update(gameRoom);
-            else
-                gameRoomRepository.delete(gameRoom.id); //If the room is empty, then remove it
-
-            player.gameRoomId = null;
-            playerRepository.update(player);
-
-            socketController.post(gameRoom.id, Actions.PlayerLeft, { gameRoomId: gameRoom.id, playerId: player.id })
+        try {
+            gameRoomService.leave(request.body.playerId)
             response.status(200).send();
+        } catch (error) {
+            console.info(error)
+            response.status(400).send(error)
         }
     }
 
     get(request, response){
-        let gameRoom = gameRoomRepository.getById(request.params.id);
+        let gameRoom = gameRoomService.getById(request.params.id);
         if(gameRoom)
             response.status(200).send(gameRoom);
         else
@@ -88,18 +47,22 @@ class GameRoomController {
     }
 
     postDrawCard(request, response){
-        let player = playerRepository.getById(request.body.playerId);
-
-        let card = gameRoomRepository.drawCard(request.body.gameRoomId);
-        if(player.hand.length > 3)
-            response.status(400).send("Player already has a full hand");
-
-        player.hand.push(player);
-        playerRepository.update(player);
-        response.status(200).send(card);
+        try {
+            response.status(200).send(gameRoomService.drawCard(request.params.id, request.body.playerId));
+        } catch (error) {
+            console.info(error)
+            response.status(400).send(error)
+        }
     }
 
-   
+    postPlayCard(request, response){
+        try {
+            response.status(200).send(gameRoomService.playCard(request.params.id, request.body.playerId, request.body.cardId));
+        } catch (error) {
+            console.info(error)
+            response.status(400).send(error)
+        }
+    }    
 }
 
 exports.GameRoomController = GameRoomController;

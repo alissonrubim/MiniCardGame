@@ -10,7 +10,8 @@ class GameRoomModel {
         this.id = id
         this.players = players
         this.deck = this.generateDeck()
-        this.playerTurnIndex = 0
+        this.matches = [];      
+        this.currentPlayerIdTurn = null;  
     }
 
     generateDeck() {
