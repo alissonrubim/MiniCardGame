@@ -99,9 +99,7 @@ export default class GameRoomGateway {
                 }
             }).then((resp) => {
                 if(resp.ok)
-                    resp.json().then((data) => {
-                        resolve(null)
-                    });
+                    resolve(null)
                 else
                     reject();
             })

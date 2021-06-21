@@ -11,6 +11,10 @@ exports.Remove = (array, field, value) => {
     array.splice(exports.GetIndex(array, field, value), 1);
 }
 
+exports.RemoveAtIndex = (array, index) => {
+    array.splice(index, 1);
+}
+
 exports.Contains = (array, field, value) => {
     return exports.GetIndex(array, field, value) > -1;
 }

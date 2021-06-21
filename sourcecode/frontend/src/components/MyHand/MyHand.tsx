@@ -42,24 +42,21 @@ export default function MyHand(props: MyHandProps){
     left: width/2 - (props.player.hand.length * (StyleSizes.Card.root.width*scale)/2)/2
   }
 
-  function handleOnClick(card: ICard){
-    props.onCardClick(card);
-  }
 
   return (
     <Box className={classes.root} style={root_styles} >
       {props.player.hand.map((card, cardIndex) => 
         <div className={classes.card_container} style={{
-          bottom: 0,
-          left: (StyleSizes.Card.root.width*scale/2)*cardIndex,
-          cursor: props.isMyTurn ? "pointer" : "default"
-        }}
-          onClick={() => handleOnClick(card)}>
+            bottom: 0,
+            left: (StyleSizes.Card.root.width*scale/2)*cardIndex,
+            cursor: props.isMyTurn ? "pointer" : "default"
+          }}>
           <Card 
             card={card}
             scale={scale}
             isFlipped={false}
             shadowLeft={true}
+            onClick={props.onCardClick}
           />
         </div>
       )}

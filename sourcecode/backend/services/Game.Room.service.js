@@ -38,7 +38,7 @@ class GameRoomService {
             }   
 
             if(gameRoom.players.length == 2){
-                this.startNewGame(gameRoom.id)
+                this.startNewMatch(gameRoom.id)
             }
 
             socketController.post(player.gameRoomId, Actions.PlayerJoined, { gameRoomId: player.gameRoomId, playerId: player.id })
@@ -46,7 +46,7 @@ class GameRoomService {
         }
     }
 
-    startNewGame(gameRoomId){
+    startNewMatch(gameRoomId){
         /* Start a new game, creating all the matches/rounds/plays structure */
         let gameRoom = gameRoomRepository.getById(gameRoomId);
         var match = new MatchModel(IdGenerator.newId());
@@ -56,6 +56,7 @@ class GameRoomService {
         gameRoom.currentPlayerIdTurn = gameRoom.players[0].id;
         gameRoomRepository.update(gameRoom);
 
+        //Give 3 cards for each
         for(var i=0; i<3; i++){
             gameRoom.players.forEach((player) => {
                 this.drawCard(gameRoom.id, player.id)
@@ -66,8 +67,10 @@ class GameRoomService {
     clearGame(gameRoomId){
         /* Clean the game, removing all the matches/round/plays info*/
         let gameRoom = gameRoomRepository.getById(gameRoomId);
-        gameRoom.matches = [];
-        gameRoomRepository.update(gameRoom);
+        if(gameRoom){
+            gameRoom.matches = [];
+            gameRoomRepository.update(gameRoom);
+        }
     }
 
     drawCard(gameRoomId, playerId){
@@ -89,6 +92,36 @@ class GameRoomService {
         return gameRoom.players[index < gameRoom.players.length - 1 ? index+1 : 0].id;
     }
 
+    getRoundWinner(round){
+        var bestCard = round.plays[0].card;
+        var winnerPlayerId = round.plays[0].playerId;
+        round.plays.forEach((play) => {
+            if(play.card.value > bestCard.value){
+                winnerPlayerId = play.playerId;
+            }
+        });
+        return winnerPlayerId;
+    }
+
+    getMatchWinner(gameRoom, match){
+        let winners = []
+        match.rounds.forEach((round) => {
+            winners.push(round.winnerPlayerId);
+        })
+        
+        var winnerPlayerId = null;
+        var winnerVictories = -1;
+        gameRoom.players.forEach((player) => {
+            let victories = winners.filter(x => x==player.id).length;
+            if(victories > winnerVictories){
+                winnerPlayerId = player.id,
+                winnerVictories = victories;
+            }
+        })
+      
+        return winnerPlayerId;
+    }
+
     playCard(gameRoomId, playerId, cardId){
         let gameRoom = gameRoomRepository.getById(gameRoomId);
         let player = playerRepository.getById(playerId);
@@ -103,19 +136,32 @@ class GameRoomService {
             throw new Error("Card is not part of the player hand");
 
         //Remove card from player hand    
-        var card = player.hand.pop();
+        var cardIndex = ArrayHelper.GetIndex(player.hand, 'id', cardId);
+        var card = player.hand[cardIndex];
+        ArrayHelper.RemoveAtIndex(player.hand, cardIndex);
         playerRepository.update(player);
  
         //Store a play
         let match = gameRoom.matches[gameRoom.matches.length-1]
         let round = match.rounds[match.rounds.length - 1];
-        round.plays.push(new PlayModel(IdGenerator.newId(), player.id, card.id));
+        round.plays.push(new PlayModel(IdGenerator.newId(), player.id, card));
         
-        if(round.plays == gameRoom.players.length){ //if everyone has played, check who own the round
-            
-        }   
-        else if(false){ //Check if someone won the match
+        if(round.plays.length == gameRoom.players.length){ //if everyone has played, check who own the round
+            round.winnerPlayerId = this.getRoundWinner(round);
+            //Set the turn to who won the round
+            gameRoom.currentPlayerIdTurn = round.winnerPlayerId;
 
+            if(match.rounds.length == 3){ //Check if the match is over
+                match.winnerPlayerId = this.getMatchWinner(gameRoom, match);
+                
+                this.startNewMatch(gameRoom.id);
+
+                socketController.post(gameRoom.id, Actions.MatchIsOver, { gameRoomId: gameRoom.id, round: round, winnerPlayerId:  match.winnerPlayerId })
+            }else{ //if not, means that the round is over
+                //Create another round
+                match.rounds.push(new RoundModel(IdGenerator.newId()))
+                socketController.post(gameRoom.id, Actions.RoundIsOver, { gameRoomId: gameRoom.id, round: round, winnerPlayerId:  gameRoom.currentPlayerIdTurn})
+            }
         }else{
             //Change player turn
             gameRoom.currentPlayerIdTurn = this.getNextPlayerTurn(gameRoom);

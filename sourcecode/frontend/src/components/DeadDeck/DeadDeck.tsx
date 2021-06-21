@@ -27,8 +27,6 @@ export default function DeacDeck(props: DeacDeckProps){
     let direction = card.id.split(":")[0] == "R" ? 1 : -1;
     let angle = card.id.split(":")[1].charCodeAt(0);
     angle += card.id.split(":")[2].charCodeAt(0);
-    console.info(angle);
-    console.info(card);
     return angle * direction;
   }
 

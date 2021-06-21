@@ -12,6 +12,8 @@ export default class SocketGateway {
     onPlayerJoined: SocketGatewayEventArgsHandler | null = null;
     onPlayerLeft:  SocketGatewayEventArgsHandler | null = null;
     onPlayerPlayCard: SocketGatewayEventArgsHandler | null = null;
+    onRoundIsOver: SocketGatewayEventArgsHandler | null = null;
+    onMatchIsOver: SocketGatewayEventArgsHandler | null = null;
     onGameStarted: SocketGatewayEventArgsHandler | null = null;
     onDisconnect: SocketGatewayEventHandler | null = null;
     
@@ -37,6 +39,14 @@ export default class SocketGateway {
             socket.on("player_play_card", (data: any) => {
                 if(this.onPlayerPlayCard)
                     this.onPlayerPlayCard(data)
+            });
+            socket.on("round_is_over", (data: any) => {
+                if(this.onRoundIsOver)
+                    this.onRoundIsOver(data)
+            });
+            socket.on("match_is_over", (data: any) => {
+                if(this.onMatchIsOver)
+                    this.onMatchIsOver(data)
             });
             socket.on("game_started", (data: any) => {
                 if(this.onGameStarted)

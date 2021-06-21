@@ -43,9 +43,15 @@ export default function Game(props: GameProps){
       console.info("socketGateWay->onPlayerLeft")
       updateGame();
     }
-    /*socketGateWay.onGameStarted = (data: any) => {
-      
-    }*/
+    socketGateWay.onRoundIsOver = (data: any) => {
+      console.info("socketGateWay->onRoundIsOver")
+      console.info(data)
+      updateGame();
+    }
+    socketGateWay.onMatchIsOver = (data: any) => {
+      console.info("socketGateWay->onMatchIsOver")
+      updateGame();
+    }
     socketGateWay.onPlayerPlayCard = (data: any) => {
       console.info("socketGateWay->onPlayerPlayCard")
       updateGame();
@@ -57,11 +63,11 @@ export default function Game(props: GameProps){
   }, []);
 
   function handleCardClick(card: ICard){
+    console.info(card)
     if(isMyTurn){
       gameRoomGateway.playCard(gameRoom.id, player.id, card.id);
     }
   }
-
 
   return (<>
     <Table 

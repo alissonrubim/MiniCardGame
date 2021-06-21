@@ -1,8 +1,8 @@
 class PlayModel {
-    constructor(id, playerId, cardId){
+    constructor(id, playerId, card){
         this.id = id
         this.playerId = playerId
-        this.cardId = cardId
+        this.card = card
     }
 }
 exports.PlayModel = PlayModel;

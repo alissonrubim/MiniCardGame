@@ -7,6 +7,8 @@ const Actions = {
     PlayerLeft: "player_left",
     PlayerJoined: "player_joined",
     PlayerPlayCard: "player_play_card",
+    RoundIsOver: "round_is_over",
+    MatchIsOver: "match_is_over",
     GameStarted: "game_started"
 }
 

@@ -1,27 +1,27 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Box, Card, Snackbar, Slide } from '@material-ui/core';
+import { Button, Box, Card, Snackbar, Slide, Divider } from '@material-ui/core';
 import { Dialog, DialogTitle } from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
+
+import config from 'config.json'
+
+import GameInfoCard from './components/GameInfoCard'
+import DebugCard from './components/DebugCard'
 
 import IGameRoom from 'models/IGameRoom'
 import IPlayer from 'models/IPlayer'
 
 const useStyles = makeStyles({
-  bottomRight: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    padding: 20,
-    minWidth: 200
-  },
-  bottomLeft: {
-    position: 'absolute',
-    left: 20,
-    bottom: 20,
-    padding: 20,
-  },
   loadingDialog: {
     textAlign: "center"
+  },
+  logoutButtonHUD: {
+    marginTop: 20,
+    textAlign: "center"
+  },
+  itemLine: {
+    marginTop: 5,
+    marginBottom: 5
   }
 });
 
@@ -38,6 +38,7 @@ export default function HUD(props: HUDProps){
 
   return (
     <Box>
+        {/* Dialogs and warning elements  */}
         <Dialog open={!props.gameIsReady}>
             <DialogTitle className={classes.loadingDialog}>
                 <p>Waiting to other players to join in...</p>
@@ -52,17 +53,23 @@ export default function HUD(props: HUDProps){
           TransitionComponent={snackBarTransitionUp}
           message="Waiting other player to play"
           key="up"
+        
         />
-        <Card className={classes.bottomRight}>
-            <div>{props.player.name}</div>
-            <div>Rounds: 0</div>
-            {logoutButton()}
-        </Card>
-        <Card className={classes.bottomLeft}>
-            <div>DEBUGGER</div>
-            <div>PlayerId: {props.player.id}</div>
-            <div>GameRoomId: {props.gameRoom.id}</div>
-        </Card>
+
+        {/* Game info HUD */}
+        <GameInfoCard 
+          player={props.player} 
+          gameRoom={props.gameRoom}
+          onLogout={props.onLogout}
+        />
+       
+        {/* Debug HUD */}
+        {config.debug && 
+          <DebugCard 
+            player={props.player} 
+            gameRoom={props.gameRoom}
+          />
+        }
     </Box>
   )
 }

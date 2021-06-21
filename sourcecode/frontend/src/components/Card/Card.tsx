@@ -62,8 +62,13 @@ export default function Card(props: CardProps){
     rootStyles.boxShadow = "-2px 3px 7px -3px #04040459";
   }
 
+  function handleOnClick(){
+    if(props.onClick)
+      props.onClick(props.card)
+  }
+
   return (
-    <Box className={classes.root} style={rootStyles}>
+    <Box className={classes.root} style={rootStyles} onClick={() =>  handleOnClick()}>
       <Box className={containerClasses}>
         <Box className={frontCardClasses}>
           <CardFront 
@@ -89,4 +94,5 @@ export interface CardProps {
   scale?: number,
   isFlipped?: boolean,
   shadowLeft?: boolean,
+  onClick?: (card: ICard) => void,
 }

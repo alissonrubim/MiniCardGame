@@ -1,4 +1,5 @@
 {
+    "debug": true,
     "ApiBaseUrl": "http://localhost:3030",
     "SocketBaseUrl": "http://localhost:3031"
 }

@@ -39,12 +39,11 @@ export default function Table(props: TableProps){
       let round = GetCurrentRound(match);
       round.plays.forEach((play) => {
         cards.push(ConvertServerCard({
-          id: play.cardId,
-          value: -1,
+          id: play.card.id,
+          value: play.card.value,
         }))
       });
     }
-    console.info(cards)
     return cards;
   }
 
