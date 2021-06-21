@@ -2,8 +2,8 @@ import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
-import CardFront from './CardFront';
-import CardBack from './CardBack';
+import CardFront from './components/CardFront';
+import CardBack from './components/CardBack';
 import ICard from 'models/ICard';
 
 import StyleSizes from 'StyleSizes';

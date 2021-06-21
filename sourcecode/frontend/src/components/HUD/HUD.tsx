@@ -51,7 +51,7 @@ export default function HUD(props: HUDProps){
         <Snackbar
           open={props.gameIsReady && !props.isMyTurn}
           TransitionComponent={snackBarTransitionUp}
-          message="Waiting other player to play"
+          message="Waiting another player to play"
           key="up"
         
         />

@@ -34,16 +34,16 @@ export default function Table(props: TableProps){
 
   function getPileCards(gameRoom: IGameRoom): Array<ICard>{
     var cards = Array<ICard>();
-    let match = GetCurrentMatch(gameRoom);
-    if(match){
-      let round = GetCurrentRound(match);
-      round.plays.forEach((play) => {
-        cards.push(ConvertServerCard({
-          id: play.card.id,
-          value: play.card.value,
-        }))
+    gameRoom.matches.forEach((match) => {
+      match.rounds.forEach((round) => {
+        round.plays.forEach((play) => {
+          cards.push(ConvertServerCard({
+            id: play.card.id,
+            value: play.card.value,
+          }))
+        });
       });
-    }
+    });
     return cards;
   }
 

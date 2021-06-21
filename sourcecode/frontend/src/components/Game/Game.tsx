@@ -59,6 +59,9 @@ export default function Game(props: GameProps){
     socketGateWay.onDisconnect = () => {
       props.onLogout();
     }
+    socketGateWay.onConnect = () => {
+      updateGame();
+    }
     socketGateWay.connect(player);
   }, []);
 

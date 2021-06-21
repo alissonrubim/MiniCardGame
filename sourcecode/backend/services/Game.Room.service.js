@@ -38,7 +38,7 @@ class GameRoomService {
             }   
 
             if(gameRoom.players.length == 2){
-                this.startNewMatch(gameRoom.id)
+                this.startNewGame(gameRoom.id)
             }
 
             socketController.post(player.gameRoomId, Actions.PlayerJoined, { gameRoomId: player.gameRoomId, playerId: player.id })
@@ -46,8 +46,15 @@ class GameRoomService {
         }
     }
 
-    startNewMatch(gameRoomId){
+    startNewGame(gameRoomId){
         /* Start a new game, creating all the matches/rounds/plays structure */
+        let gameRoom = gameRoomRepository.getById(gameRoomId);
+        gameRoom.generateNewDeck();
+        this.startNewMatch(gameRoomId);
+    }
+
+    startNewMatch(gameRoomId){
+        /* Start a new matches, giving default cars to the player */
         let gameRoom = gameRoomRepository.getById(gameRoomId);
         var match = new MatchModel(IdGenerator.newId());
         var roud = new RoundModel(IdGenerator.newId());
@@ -70,6 +77,10 @@ class GameRoomService {
         if(gameRoom){
             gameRoom.matches = [];
             gameRoomRepository.update(gameRoom);
+            gameRoom.players.forEach((player) => {
+                player.hand = [];
+                playerRepository.update(player);
+            })
         }
     }
 

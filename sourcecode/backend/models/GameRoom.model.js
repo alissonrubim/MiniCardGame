@@ -9,12 +9,14 @@ class GameRoomModel {
 
         this.id = id
         this.players = players
-        this.deck = this.generateDeck()
+        this.deck = [];
         this.matches = [];      
-        this.currentPlayerIdTurn = null;  
+        this.currentPlayerIdTurn = null; 
+
+        this.generateNewDeck(); 
     }
 
-    generateDeck() {
+    generateNewDeck() {
       //Generates a deck with random cards
       let decks = [];
       decks.push(new DeckModel('R'));
@@ -47,7 +49,7 @@ class GameRoomModel {
 
       shuffleArray(gameDeck);
     
-      return gameDeck;
+      this.deck = gameDeck;
     }
 }
 exports.GameRoomModel = GameRoomModel;
