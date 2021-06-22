@@ -35,13 +35,9 @@ const useStyles = makeStyles({
   }
 });
 
-export default function GameInfoCard(props: GameInfoCardProps){
+export default function HUDGameInfoCard(props: HUDGameInfoCardProps){
   const classes = useStyles();
   let currentMatch = GetCurrentMatch(props.gameRoom);
-
-  function logoutButton(){
-    return (<Button onClick={() => props.onLogout()} variant="contained" color="secondary">Leave game</Button>);
-  }
 
   function renderStars(starts: Array<number>){
     let startsEl = Array<JSX.Element>();
@@ -84,13 +80,13 @@ export default function GameInfoCard(props: GameInfoCardProps){
         <Divider />
         <Box className={classes.itemLine}>Matches: {renderStars(getStarsArray(props.gameRoom.matches ? props.gameRoom.matches : [], 5))}</Box>
         <Box className={classes.logoutButtonHUD}>
-            {logoutButton()}
+          <Button onClick={() => props.onLogout()} variant="contained" color="secondary">Leave game</Button>
         </Box>
     </Card>
   )
 }
 
-export interface GameInfoCardProps {   
+export interface HUDGameInfoCardProps {   
     player: IPlayer,
     gameRoom: IGameRoom,
     onLogout: () => void,

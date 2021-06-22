@@ -13,7 +13,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function DebugCard(props: DebugCarddProps){
+export default function HUDDebugCard(props: HUDDebugCardProps){
   const classes = useStyles();
  
   return (
@@ -25,7 +25,7 @@ export default function DebugCard(props: DebugCarddProps){
   )
 }
 
-export interface DebugCarddProps {   
+export interface HUDDebugCardProps {   
     player: IPlayer,
     gameRoom: IGameRoom,
 }

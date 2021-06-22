@@ -3,14 +3,16 @@ import Table from 'components/Table/Table';
 import ICard from 'models/ICard';
 import IGameRoom from 'models/IGameRoom';
 import IPlayer from 'models/IPlayer';
-import { makeStyles } from '@material-ui/core/styles';
 import GameRoomGateway from 'gateways/GameRoom.gateway';
 import PlayerGateway from 'gateways/Player.gateway';
 import SocketGateway from 'gateways/Socket.gateway';
 import MyHand from 'components/MyHand/MyHand';
 import HUD from 'components/HUD/HUD';
+import Overlays from 'components/Overlays/Overlays';
 
-import {GetCurrentMatch, GetCurrentRound} from 'helpers/GameRoomHelper';
+import {GetCurrentMatch} from 'helpers/GameRoomHelper';
+
+import { GetIndex } from 'helpers/ArrayHelper';
 
 export default function Game(props: GameProps){
   const gameRoomGateway = new GameRoomGateway();
@@ -21,7 +23,7 @@ export default function Game(props: GameProps){
   const [gameRoom, setGameRoom] = React.useState(props.gameRoom);
   const [gameIsReady, setGameIsReady] = React.useState(props.gameRoom.players.length == 2);
   const [isMyTurn, setIsMyTurn] = React.useState(props.gameRoom.currentPlayerIdTurn == player.id);
-  const [gameWinnerPlayer, setGammerWinnerPlayer] = React.useState(null);
+  const [gameWinnerPlayer, setGammerWinnerPlayer] = React.useState<IPlayer | null>(null);
 
   function updateGame(){
     gameRoomGateway.get(gameRoom!.id).then((gameRoomData: IGameRoom) => {
@@ -42,6 +44,7 @@ export default function Game(props: GameProps){
     }
     socketGateWay.onPlayerLeft = (data: any) => {
       console.info("socketGateWay->onPlayerLeft")
+      setGammerWinnerPlayer(null);
       updateGame();
     }
     socketGateWay.onRoundIsOver = (data: any) => {
@@ -60,7 +63,8 @@ export default function Game(props: GameProps){
     socketGateWay.onGameEnd = (data: any) => {
       console.info("socketGateWay->onGameEnd")
       updateGame();
-      //SETA UM STATE PARA MOSTARA QUE O JOGO ACABOU
+      let winnerIndex = GetIndex(gameRoom.players, 'id', data.winnerPlayerId);
+      setGammerWinnerPlayer(gameRoom.players[winnerIndex])
     }
     socketGateWay.onDisconnect = () => {
       props.onLogout();
@@ -93,7 +97,15 @@ export default function Game(props: GameProps){
     <MyHand 
       player={player} 
       isMyTurn={isMyTurn}
-      onCardClick={handleCardClick} />
+      onCardClick={handleCardClick} 
+    />
+    <Overlays 
+      gameIsReady={gameIsReady}      
+      gameWinnerPlayer={gameWinnerPlayer}
+      player={player}
+      isMyTurn={isMyTurn}
+      onLogout={props.onLogout} 
+    />
   </>)
 }
 
