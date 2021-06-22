@@ -9,6 +9,8 @@ const { MatchModel } = require("../models/Match.model");
 const { RoundModel } = require("../models/Round.model");
 const { PlayModel } = require("../models/Play.mode");
 
+const { BadRequestExceptionError, ForbiddenExceptionError } = require('../helpers/Exceptions');
+
 const playerRepository = new PlayerRepository();
 const gameRoomRepository = new GameRoomRepository();
 
@@ -17,7 +19,7 @@ class GameRoomService {
         let gameRoom = null;
         let player = playerRepository.getById(playerId);
         if(!player)
-            throw new Error("Player not found");
+            throw new BadRequestExceptionError("Player not found");
 
         if(player.gameRoomId){ //If is joinned to a game, return this same game
             return gameRoomRepository.getById(player.gameRoomId);
@@ -85,12 +87,13 @@ class GameRoomService {
     }
 
     drawCard(gameRoomId, playerId){
+        /* Draw a card from the deck to the player hands */
         let player = playerRepository.getById(playerId);
         if(!player)
-            throw new Error("Player not found");
+            throw new BadRequestExceptionError("Player not found");
         let card = gameRoomRepository.drawCard(gameRoomId);
         if(player.hand.length > 3)
-            throw new Error("Player already has a full hand");
+            throw new ForbiddenExceptionError("Player already has a full hand");
         else{
             player.hand.push(card);
             playerRepository.update(player);
@@ -138,13 +141,13 @@ class GameRoomService {
         let player = playerRepository.getById(playerId);
 
         if(!gameRoom)
-            throw new Error("Gameroom not found");
+            throw new BadRequestExceptionError("Gameroom not found");
         if(!player)
-            throw new Error("Player not found");
+            throw new BadRequestExceptionError("Player not found");
         if(!ArrayHelper.Contains(gameRoom.players, "id", playerId))
-            throw new Error("Player is not part of the gameroom");
+            throw new ForbiddenExceptionError("Player is not part of the gameroom");
         if(!ArrayHelper.Contains(player.hand, "id", cardId))
-            throw new Error("Card is not part of the player hand");
+            throw new ForbiddenExceptionError("Card is not part of the player hand");
 
         //Remove card from player hand    
         var cardIndex = ArrayHelper.GetIndex(player.hand, 'id', cardId);
@@ -188,9 +191,9 @@ class GameRoomService {
     leave(playerId){
         let player = playerRepository.getById(playerId);
         if(!player)
-            throw new Error("Player not found");
+            throw new BadRequestExceptionError("Player not found");
         else if(!player.gameRoomId)
-            throw new Error("Player is not in a room");
+            throw new ForbiddenExceptionError("Player is not in a room");
         else{
             let gameRoom = gameRoomRepository.getById(player.gameRoomId);
 

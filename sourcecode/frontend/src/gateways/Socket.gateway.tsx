@@ -15,6 +15,7 @@ export default class SocketGateway {
     onRoundIsOver: SocketGatewayEventArgsHandler | null = null;
     onMatchIsOver: SocketGatewayEventArgsHandler | null = null;
     onGameStarted: SocketGatewayEventArgsHandler | null = null;
+    onGameEnd: SocketGatewayEventArgsHandler | null = null;
     onDisconnect: SocketGatewayEventHandler | null = null;
     onConnect: SocketGatewayEventHandler | null = null;
     
@@ -52,6 +53,10 @@ export default class SocketGateway {
         socket.on("game_started", (data: any) => {
             if(this.onGameStarted)
                 this.onGameStarted(data)
+        });
+        socket.on("game_end", (data: any) => {
+            if(this.onGameEnd)
+                this.onGameEnd(data)
         });
     }    
 }

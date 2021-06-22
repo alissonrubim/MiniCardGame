@@ -1,4 +1,6 @@
-const {GameRoomService} = require("../services/Game.Room.service")
+const {GameRoomService} = require("../services/GameRoom.service")
+const { HandleException } = require("../helpers/Exceptions");
+
 const gameRoomService = new GameRoomService();
 
 class GameRoomController {
@@ -23,8 +25,7 @@ class GameRoomController {
         try {
             response.status(200).send(gameRoomService.join(request.body.playerId));
         } catch (error) {
-            console.info(error)
-            response.status(400).send(error)
+            HandleException(response, error); 
         }
     }
 
@@ -33,8 +34,7 @@ class GameRoomController {
             gameRoomService.leave(request.body.playerId)
             response.status(200).send();
         } catch (error) {
-            console.info(error)
-            response.status(400).send(error)
+            HandleException(response, error); 
         }
     }
 
@@ -50,8 +50,7 @@ class GameRoomController {
         try {
             response.status(200).send(gameRoomService.drawCard(request.params.id, request.body.playerId));
         } catch (error) {
-            console.info(error)
-            response.status(400).send(error)
+            HandleException(response, error); 
         }
     }
 
@@ -59,8 +58,7 @@ class GameRoomController {
         try {
             response.status(200).send(gameRoomService.playCard(request.params.id, request.body.playerId, request.body.cardId));
         } catch (error) {
-            console.info(error)
-            response.status(400).send(error)
+            HandleException(response, error); 
         }
     }    
 }

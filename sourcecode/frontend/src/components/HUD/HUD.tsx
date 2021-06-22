@@ -53,7 +53,6 @@ export default function HUD(props: HUDProps){
           TransitionComponent={snackBarTransitionUp}
           message="Waiting another player to play"
           key="up"
-        
         />
 
         {/* Game info HUD */}

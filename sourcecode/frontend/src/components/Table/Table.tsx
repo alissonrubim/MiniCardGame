@@ -2,11 +2,12 @@ import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Deck from 'components/Deck/Deck';
 import DeadDeck  from 'components/DeadDeck/DeadDeck';
+import PlayersPool from 'components/PlayersPool/PlayersPool';
 
+import IPlayer from 'models/IPlayer'
 import IGameRoom from 'models/IGameRoom'
 import ICard from 'models/ICard'
 
-import {GetCurrentMatch, GetCurrentRound} from 'helpers/GameRoomHelper';
 import {ConvertServerCard} from 'helpers/DeckHelpers'
 
 const useStyles = makeStyles({
@@ -49,6 +50,10 @@ export default function Table(props: TableProps){
 
   return (
     <Box className={classes.root}>
+      <PlayersPool 
+        player={props.player}
+        players={props.gameRoom.players}
+      />
       <Deck 
         cards={props.gameRoom.deck}
       />
@@ -60,5 +65,6 @@ export default function Table(props: TableProps){
 }
 
 export interface TableProps {
+  player: IPlayer,
   gameRoom: IGameRoom
 }

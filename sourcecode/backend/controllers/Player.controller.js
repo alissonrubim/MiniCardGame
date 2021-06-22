@@ -1,8 +1,8 @@
-const { PlayerModel } = require("../models/Player.model");
-const { PlayerRepository } = require("../repositories/Player.repository");
-const IdGenerator = require("../helpers/IdGenerator");
 
-const playerRepository = new PlayerRepository();
+const { PlayerService } = require("../services/Player.service");
+const { HandleException } = require("../helpers/Exceptions");
+
+const playerService = new PlayerService();
 
 class PlayerController {
     constructor(app){
@@ -17,21 +17,19 @@ class PlayerController {
     }
 
     post(request, response){
-        if(!request.body.name)
-            response.status(400).send("Username must have a value.");
-        else{
-            let player = new PlayerModel(IdGenerator.newId(), request.body.name);
-            playerRepository.insert(player);
-            response.status(201).send(player);
+        try {
+            response.status(200).send(playerService.create(request.body.name));
+        } catch (error) {
+            HandleException(response, error);  
         }
     }
 
     getAll(request, response) {
-        response.status(200).send(playerRepository.getAll());
+        response.status(200).send(playerService.getAll());
     }
 
     get(request, response){
-        let player = playerRepository.getById(request.params.id);
+        let player = playerService.getById(request.params.id);
         if(player)
             response.status(200).send(player);
         else

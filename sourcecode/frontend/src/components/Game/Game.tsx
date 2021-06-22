@@ -56,6 +56,11 @@ export default function Game(props: GameProps){
       console.info("socketGateWay->onPlayerPlayCard")
       updateGame();
     }
+    socketGateWay.onGameEnd = (data: any) => {
+      console.info("socketGateWay->onGameEnd")
+      updateGame();
+      //SETA UM STATE PARA MOSTARA QUE O JOGO ACABOU
+    }
     socketGateWay.onDisconnect = () => {
       props.onLogout();
     }
@@ -74,13 +79,14 @@ export default function Game(props: GameProps){
 
   return (<>
     <Table 
+      player={player} 
       gameRoom={gameRoom} 
     />
     <HUD 
       player={player} 
       gameRoom={gameRoom} 
       onLogout={props.onLogout} 
-      gameIsReady={gameIsReady}
+      gameIsReady={gameIsReady}      
       isMyTurn={isMyTurn}
     />
     <MyHand 
