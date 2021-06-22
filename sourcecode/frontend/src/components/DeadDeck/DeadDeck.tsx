@@ -40,7 +40,7 @@ export default function DeacDeck(props: DeacDeckProps){
         }}>
           <Card 
             style={{
-              boxShadow: "#0000004a 0px 0px 12px"
+              boxShadow: "#0000004a 0px 0px 3px"
             }}
             card={card}
             scale={scale}

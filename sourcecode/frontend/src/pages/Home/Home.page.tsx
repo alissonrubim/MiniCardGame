@@ -6,7 +6,8 @@ const useStyles = makeStyles({
     root: {
       padding: 30,
       textAlign: "center",
-      marginTop: 100
+      marginTop: 100,
+      boxShadow: "0px 0px 10px #0000003b"
     },
     logo: {
         width: 320
@@ -26,7 +27,7 @@ export default function HomePage(props: HomePageProps){
 
     return (
         <Container maxWidth="sm">
-            <Paper variant="outlined" className={classes.root}>
+            <Paper variant="outlined" className={classes.root} elevation={7}>
                 <img src="/images/logo.png" className={classes.logo}/>
                 <FormControl>
                     <Grid container spacing={2}>

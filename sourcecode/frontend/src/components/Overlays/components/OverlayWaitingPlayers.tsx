@@ -26,6 +26,6 @@ export default function OverlayWaitingPlayers(props: OverlayWaitingPlayersProps)
 }
 
 export interface OverlayWaitingPlayersProps {   
-    gameIsReady: boolean,
-    onLogout: () => void,
+  gameIsReady: boolean,
+  onLogout: () => void,
 }

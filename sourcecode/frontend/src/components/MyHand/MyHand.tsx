@@ -6,8 +6,6 @@ import Card from 'components/Card/Card';
 import ICard from 'models/ICard';
 import IPlayer from 'models/IPlayer';
 import StyleSizes from 'StyleSizes';
-import classNames from 'classnames';
-
 
 
 const useStyles = makeStyles({
@@ -17,9 +15,14 @@ const useStyles = makeStyles({
   },
   card_container: {
     position: 'absolute',
-    transition: 'bottom 0.8s',
+    bottom: -40,
+    transition: 'bottom 0.3s',
+  },
+  card_container_my_turn: {
+    position: 'absolute',
+    bottom: 0,
     '&:hover': {
-      bottom: 50
+      bottom: 5
     }
   },
   card_highlight: {
@@ -42,20 +45,24 @@ export default function MyHand(props: MyHandProps){
     left: width/2 - (props.player.hand.length * (StyleSizes.Card.root.width*scale)/2)/2
   }
 
+  let cardClass = classes.card_container;
+  if(props.isMyTurn)
+    cardClass = classes.card_container_my_turn;
 
   return (
     <Box className={classes.root} style={root_styles} >
       {props.player.hand.map((card, cardIndex) => 
-        <div className={classes.card_container} style={{
-            bottom: 0,
+        <div className={cardClass} style={{
             left: (StyleSizes.Card.root.width*scale/2)*cardIndex,
-            cursor: props.isMyTurn ? "pointer" : "default"
+            cursor: props.isMyTurn ? "pointer" : "no-drop"
           }}>
           <Card 
+            style={{
+              boxShadow: "rgb(0 0 0 / 38%) 0px 0px 32px"
+            }}
             card={card}
             scale={scale}
             isFlipped={false}
-            shadowLeft={true}
             onClick={props.onCardClick}
           />
         </div>

@@ -58,10 +58,6 @@ export default function Card(props: CardProps){
 
   let rootStyles:any = { ...props.style, width: StyleSizes.Card.root.width*scale, height: StyleSizes.Card.root.height*scale };
 
-  if(props.shadowLeft){
-    rootStyles.boxShadow = "rgb(0 0 0 / 45%) 0px 0px 5px";
-  }
-
   function handleOnClick(){
     if(props.onClick)
       props.onClick(props.card)
@@ -93,7 +89,6 @@ export interface CardProps {
   card: ICard,
   scale?: number,
   isFlipped?: boolean,
-  shadowLeft?: boolean,
   style?: any,
   onClick?: (card: ICard) => void,
 }

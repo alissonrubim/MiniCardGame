@@ -22,7 +22,7 @@ const useStyles = makeStyles({
   pattern: {
     position: 'relative',
     border: '1px solid #545454',
-    backgroundImage: 'url("https://static.vecteezy.com/system/resources/previews/001/209/780/original/square-pattern-png.png")',
+    backgroundImage: 'url("/images/square-pattern-png.png")',
     opacity: 0.2,
   }
 });
