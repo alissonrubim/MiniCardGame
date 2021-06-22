@@ -21,6 +21,7 @@ export default function Game(props: GameProps){
   const [gameRoom, setGameRoom] = React.useState(props.gameRoom);
   const [gameIsReady, setGameIsReady] = React.useState(props.gameRoom.players.length == 2);
   const [isMyTurn, setIsMyTurn] = React.useState(props.gameRoom.currentPlayerIdTurn == player.id);
+  const [gameWinnerPlayer, setGammerWinnerPlayer] = React.useState(null);
 
   function updateGame(){
     gameRoomGateway.get(gameRoom!.id).then((gameRoomData: IGameRoom) => {

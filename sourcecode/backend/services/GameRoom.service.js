@@ -136,6 +136,25 @@ class GameRoomService {
         return winnerPlayerId;
     }
 
+    getGameWinner(gameRoom){
+        let winners = []
+        gameRoom.matches.forEach((match) => {
+            winners.push(match.winnerPlayerId);
+        })
+
+        var winnerPlayerId = null;
+        var winnerVictories = -1;
+        gameRoom.players.forEach((player) => {
+            let victories = winners.filter(x => x==player.id).length;
+            if(victories > winnerVictories){
+                winnerPlayerId = player.id,
+                winnerVictories = victories;
+            }
+        })
+
+        return winnerPlayerId;
+    }
+
     playCard(gameRoomId, playerId, cardId){
         let gameRoom = gameRoomRepository.getById(gameRoomId);
         let player = playerRepository.getById(playerId);
@@ -168,9 +187,14 @@ class GameRoomService {
             if(match.rounds.length == 3){ //Check if the match is over
                 match.winnerPlayerId = this.getMatchWinner(gameRoom, match);
                 
-                this.startNewMatch(gameRoom.id);
+                if(gameRoom.matches.length == 5){ //Check if is the last match
+                    let winnerPlayerId = this.getGameWinner(gameRoom);
 
-                socketController.post(gameRoom.id, Actions.MatchIsOver, { gameRoomId: gameRoom.id, round: round, winnerPlayerId:  match.winnerPlayerId })
+                    socketController.post(gameRoom.id, Actions.GameEnded, { gameRoomId: gameRoom.id, round: round, match: match, winnerPlayerId: winnerPlayerId })
+                }else{
+                    this.startNewMatch(gameRoom.id);
+                    socketController.post(gameRoom.id, Actions.MatchIsOver, { gameRoomId: gameRoom.id, round: round, match: match, winnerPlayerId:  match.winnerPlayerId })
+                }
             }else{ //if not, means that the round is over
                 //Create another round
                 match.rounds.push(new RoundModel(IdGenerator.newId()))
