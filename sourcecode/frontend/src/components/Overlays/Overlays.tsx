@@ -26,6 +26,7 @@ export default function Overlays(props: OverlaysProps){
 export interface OverlaysProps {   
   isMyTurn: boolean,
   gameIsReady: boolean,
+  matchWinnerPlayer: IPlayer | null,
   gameWinnerPlayer: IPlayer  | null,
   player: IPlayer,
   onLogout: () => void,

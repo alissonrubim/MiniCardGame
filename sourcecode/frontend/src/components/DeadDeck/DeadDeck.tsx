@@ -45,6 +45,7 @@ export default function DeacDeck(props: DeacDeckProps){
             card={card}
             scale={scale}
             isFlipped={false}
+            key={cardIndex}
           />
         </div>
       )}

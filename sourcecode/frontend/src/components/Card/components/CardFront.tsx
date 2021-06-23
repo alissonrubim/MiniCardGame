@@ -52,12 +52,12 @@ const useStyles = makeStyles({
     fontWeight: 'bold',
   },
   label_bottom_right: {
-    transform: 'scaleY(-1)',
+    transform: 'scale(-1, -1)',
     position: 'absolute',
     fontWeight: 'bold',
   },
   icon_bottom_right: {
-    transform: 'scaleY(-1)',
+    transform: 'scale(-1, -1)',
     position: 'absolute',
     fontWeight: 'bold',
   },

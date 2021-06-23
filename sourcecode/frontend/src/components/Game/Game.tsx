@@ -23,7 +23,8 @@ export default function Game(props: GameProps){
   const [gameRoom, setGameRoom] = React.useState(props.gameRoom);
   const [gameIsReady, setGameIsReady] = React.useState(props.gameRoom.players.length == 2);
   const [isMyTurn, setIsMyTurn] = React.useState(props.gameRoom.currentPlayerIdTurn == player.id);
-  const [gameWinnerPlayer, setGammerWinnerPlayer] = React.useState<IPlayer | null>(null);
+  const [gameWinnerPlayer, setGameWinnerPlayer] = React.useState<IPlayer | null>(null);
+  const [matchWinnerPlayer, setMatchWinnerPlayer] = React.useState<IPlayer | null>(null);
 
   function updateGame(){
     gameRoomGateway.get(gameRoom!.id).then((gameRoomData: IGameRoom) => {
@@ -44,27 +45,29 @@ export default function Game(props: GameProps){
     }
     socketGateWay.onPlayerLeft = (data: any) => {
       console.info("socketGateWay->onPlayerLeft")
-      setGammerWinnerPlayer(null);
+      setGameWinnerPlayer(null);
       updateGame();
     }
     socketGateWay.onRoundIsOver = (data: any) => {
       console.info("socketGateWay->onRoundIsOver")
-      console.info(data)
       updateGame();
     }
     socketGateWay.onMatchIsOver = (data: any) => {
       console.info("socketGateWay->onMatchIsOver")
       updateGame();
+      let winnerIndex = GetIndex(gameRoom.players, 'id', data.winnerPlayerId);
+      setMatchWinnerPlayer(gameRoom.players[winnerIndex])
     }
     socketGateWay.onPlayerPlayCard = (data: any) => {
       console.info("socketGateWay->onPlayerPlayCard")
+      setMatchWinnerPlayer(null)
       updateGame();
     }
     socketGateWay.onGameEnd = (data: any) => {
       console.info("socketGateWay->onGameEnd")
       updateGame();
       let winnerIndex = GetIndex(gameRoom.players, 'id', data.winnerPlayerId);
-      setGammerWinnerPlayer(gameRoom.players[winnerIndex])
+      setGameWinnerPlayer(gameRoom.players[winnerIndex])
     }
     socketGateWay.onDisconnect = () => {
       props.onLogout();
@@ -76,7 +79,6 @@ export default function Game(props: GameProps){
   }, []);
 
   function handleCardClick(card: ICard){
-    console.info(card)
     if(isMyTurn){
       gameRoomGateway.playCard(gameRoom.id, player.id, card.id);
     }
@@ -102,6 +104,7 @@ export default function Game(props: GameProps){
     <Overlays 
       gameIsReady={gameIsReady}      
       gameWinnerPlayer={gameWinnerPlayer}
+      matchWinnerPlayer={matchWinnerPlayer}
       player={player}
       isMyTurn={isMyTurn}
       onLogout={props.onLogout} 
